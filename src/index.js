@@ -42,8 +42,13 @@ export default function watch ( rollup, options ) {
 	const emitter = new EventEmitter();
 
 	process.nextTick( () => emitter.emit( 'event', { code: 'STARTING' }) );
-
-	checkVersion( name, version )
+	let isCheckVersion = true
+	if ( process.env.NO_CHECK_ROLLUP_WATCH_VERSION ) {
+		isCheckVersion = false
+	} else if ( options.noCheckRollupWatchVersion ) {
+		isCheckVersion = false
+	}
+	( isCheckVersion && checkVersion( name, version ) || Promise.resolve() )
 		.catch( err => {
 			if ( err.code === 'OUT_OF_DATE' ) {
 				// TODO offer to update
